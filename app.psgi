@@ -3,6 +3,7 @@ use Digest::MD5 'md5_hex';
 use Encode;
 use utf8;
 
+# init
 init();
 
 # route
@@ -18,7 +19,6 @@ get '/' => sub {
 get '/:id' => sub {
 	my $self = shift;
 	my $html = get_html($self->param('id'));
-print $html;
 	$self->render_not_found unless ($html);
 	$self->render(text => $html);
 };
@@ -28,7 +28,7 @@ get '/:id/edit' => sub {
 	my $raw = get_raw($self->param('id'));
 	$self->render_not_found unless ($raw);
 	$self->stash(
-		title => 'index',
+		title => 'edit',
 		raw   => $raw,
 	);
 	$self->render;
@@ -37,8 +37,11 @@ get '/:id/edit' => sub {
 post '/' => sub {
 	my $self = shift;
 	my $checksum = create($self->param('input'));
-	$self->render_exception('require input') unless($checksum);
-	$self->redirect_to('/'.$checksum);
+	if ($checksum) {
+		$self->redirect_to('/'.$checksum);
+	} else {
+		$self->render_exception('require input');
+	}
 };
 
 sub get_raw {
@@ -132,3 +135,6 @@ __DATA__
     </form>
   </body>
 </html>
+
+@@ exception.html.ep
+Error
